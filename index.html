@@ -123,7 +123,6 @@
   <div class="keys mob"><span><b>왼쪽 화면</b>조이스틱 이동</span><span><b>오른쪽 화면</b>드래그로 시점</span><span><b>달리기</b>꾹 누르기</span><span><b>뿌리기</b>스프레이</span><span><b>슬롯</b>터치로 선택</span></div>
   <div class="keys pc"><span><b>W A S D</b>이동</span><span><b>SHIFT</b>달리기</span><span><b>MOUSE</b>시점</span><span><b>ESC</b>일시정지</span><span><b>1 2 3</b>슬롯</span><span><b>E / 클릭</b>스프레이</span><span><b>G</b>버리기</span><span><b>M</b>소리</span></div>
   <button id="startBtn">입장하기</button>
-  <label id="testLbl"><input type="checkbox" id="testMode"> 테스트 모드 — 열쇠 5개를 가진 채 시작</label>
   <div class="small">스프레이를 놈의 얼굴에 뿌리면 10초 기절 (1회용, 최대 3개) · 헤드폰 권장 · 돌진은 옆으로 피해 벽에 박게 해라</div>
 </div>
 <div id="touch"><div id="joyHint"></div><div id="joyBase"><div id="joyKnob"></div></div><button id="runBtn">달리기</button><button id="useBtn">뿌리기</button><button id="dropBtn">버리기</button><button id="pauseBtn">❚❚</button></div>
@@ -1824,7 +1823,7 @@ const TC = { mx: 0, my: 0, sprint: false, joyId: null, lookId: null, jx: 0, jy: 
 if (IS_TOUCH) { document.body.classList.add('touch'); DPR_CAP = 1.25; }
 const P = { pos: [0, 0, 3.2], vel: [0, 0], yaw: 0, pitch: 0, stamina: 1, exhausted: false, regenDelay: 0, phase: 0, bobAmp: 0, fov: 72, roll: 0, turnRoll: 0, lastStepSign: 0, shake: 0, breath: 0, sprinting: false, speed: 0, dipV: 0, dip: 0 };
 const M = { pos: [0, 0, 0], yaw: 0, state: 'dormant', t: 0, target: null, field: null, fieldKey: '', speed: 0, phase: 0, roar: 0, roarT: 0, lastSeen: null, lastSeenVel: [0, 0], sinceSeen: 99, seeing: false, chargeCD: 4, chargeDir: [0, 0], stun: 0, percT: 0, noContact: 0, headYaw: 0, headPitch: 0, breathe: 0, attack: 0, steamT: 0, lastPlant: 0, alerted: false };
-const GS = { state: 'loading', time: GAME_TIME, elapsed: 0, fear: 0, flash: 0, fade: 1, fadeCol: [0, 0, 0], deathT: 0, winT: 0, msgT: 0, heartT: 0, creakT: 10, scale: 1, ftAvg: 16, locked: false, test: /[?&#]test/.test(location.href) };
+const GS = { state: 'loading', time: GAME_TIME, elapsed: 0, fear: 0, flash: 0, fade: 1, fadeCol: [0, 0, 0], deathT: 0, winT: 0, msgT: 0, heartT: 0, creakT: 10, scale: 1, ftAvg: 16, locked: false, test: false };
 const parts = []; // particles
 const light = { pl: new Float32Array(MAX_PL * 4), plc: new Float32Array(MAX_PL * 4) };
 
@@ -1886,7 +1885,7 @@ function lockPointer() {
   try { const r = $('c').requestPointerLock(); if (r && r.catch) r.catch(() => { GS.freeLook = true; }); } catch (e) { GS.freeLook = true; }
   setTimeout(() => { if (!GS.locked) GS.freeLook = true; }, 400);
 }
-function startGame() { if (CH.sel === 2 && !CH.ch2) return; useLevel(LV[CH.sel]); AU.init(); document.body.classList.add('playing'); $('title').style.display = 'none'; $('dead').style.display = 'none'; $('win').style.display = 'none'; $('pause').style.display = 'none'; $('hud').style.display = 'block'; resetGame(); GS.state = 'play'; GS.fade = 1; if (!IS_TOUCH) lockPointer(); else GS.freeLook = true; const c2 = GS.chapter === 2; if ($('testMode').checked) { for (const k of ITEM.keys) k.got = true; INV.keys = KEY_TOTAL; renderHotbar(); msg(c2 ? '테스트 모드 — 열쇠 5개 보유. 뒤쪽 거대한 철문으로!' : '테스트 모드 — 열쇠 5개를 가지고 시작했다. 발밑 탈출구로!', 4.5); } else msg(c2 ? '열쇠 5개를 찾아 등 뒤의 거대한 철문을 열어라' : '열쇠 5개를 찾아 이곳의 탈출구를 열어라', 4.5); }
+function startGame() { if (CH.sel === 2 && !CH.ch2) return; useLevel(LV[CH.sel]); AU.init(); document.body.classList.add('playing'); $('title').style.display = 'none'; $('dead').style.display = 'none'; $('win').style.display = 'none'; $('pause').style.display = 'none'; $('hud').style.display = 'block'; resetGame(); GS.state = 'play'; GS.fade = 1; if (!IS_TOUCH) lockPointer(); else GS.freeLook = true; const c2 = GS.chapter === 2; if ($('testMode') && $('testMode').checked) { for (const k of ITEM.keys) k.got = true; INV.keys = KEY_TOTAL; renderHotbar(); msg(c2 ? '테스트 모드 — 열쇠 5개 보유. 뒤쪽 거대한 철문으로!' : '테스트 모드 — 열쇠 5개를 가지고 시작했다. 발밑 탈출구로!', 4.5); } else msg(c2 ? '열쇠 5개를 찾아 등 뒤의 거대한 철문을 열어라' : '열쇠 5개를 찾아 이곳의 탈출구를 열어라', 4.5); }
 function pauseGame() { GS.state = 'pause'; resetTouch(); $('pause').style.display = 'flex'; }
 function resumeGame() { $('pause').style.display = 'none'; GS.state = 'play'; AU.init(); if (!IS_TOUCH) lockPointer(); }
 $('startBtn').onclick = startGame; $('retry1').onclick = () => { CH.sel = GS.chapter || 1; startGame(); }; $('retry2').onclick = () => { CH.sel = GS.chapter || 1; startGame(); }; $('pause').onclick = resumeGame;
@@ -2275,7 +2274,7 @@ function loop(now) {
   GS.scaleT = (GS.scaleT || 0) - dt;
   if (GS.scaleT <= 0 && GS.ftAvg > 26 && GS.scale > 0.55) { GS.scale = Math.max(0.55, GS.scale - 0.1); GS.ftAvg = 18; GS.scaleT = 2.5; }
   else if (GS.scaleT <= 0 && GS.ftAvg < 12 && GS.scale < 1) { GS.scale = Math.min(1, GS.scale + 0.1); GS.ftAvg = 16; GS.scaleT = 4; }
-  R.resize(GS.test ? 0.5 : GS.scale);
+  R.resize(GS.scale);
   if (GS.state === 'play') {
     GS.elapsed += dt; GS.time -= dt;
     updatePlayer(dt); if (GS.chapter === 2) updateNM(dt); else updateMino(dt);
@@ -3111,7 +3110,7 @@ function showClear(ch) {
   $('unlock').textContent = ch === 2 ? '다음 이야기는 준비 중' : '🔓 CHAPTER 2 · 지하실 해금';
 }
 
-window.__G = { get mino() { return mino; }, get R() { return R; }, AU, GS, CH, LV, ITEM2, get nm() { return nm; }, P, M, world, keys, startGame, die, INV, ITEM, useItem, dropItem, stats: () => ({ st: staticDraw.map(d => d.mesh.count / 3), mi: minoNodes.map(n => n.name + ':' + n.mesh.count / 3), parts: parts.length }) };
+window.__G_unused = { get mino() { return mino; }, get R() { return R; }, AU, GS, CH, LV, ITEM2, get nm() { return nm; }, P, M, world, keys, startGame, die, INV, ITEM, useItem, dropItem, stats: () => ({ st: staticDraw.map(d => d.mesh.count / 3), mi: minoNodes.map(n => n.name + ':' + n.mesh.count / 3), parts: parts.length }) };
 boot();
 
 })();
