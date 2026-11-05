@@ -2,12 +2,13 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>미궁 — 미노타우로스</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;800&family=Noto+Serif+KR:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  html,body{margin:0;height:100%;background:#000;overflow:hidden;font-family:'Noto Serif KR',serif;color:#d8cfc0;user-select:none}
+  html,body{margin:0;height:100%;touch-action:none;-webkit-touch-callout:none;-webkit-user-select:none;overscroll-behavior:none;background:#000;overflow:hidden;font-family:'Noto Serif KR',serif;color:#d8cfc0;user-select:none}
   #c{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:none}
   .scr{position:fixed;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;z-index:5}
   #loading{display:flex;background:#000}
@@ -46,6 +47,20 @@
   #mute{position:fixed;top:18px;right:20px;z-index:20;margin:0;padding:8px 14px;font-size:13px;letter-spacing:.1em;background:rgba(0,0,0,.45);border:1px solid #4a3e33;color:#d8cfc0;cursor:pointer}
   #mute:hover{background:#3a120e;border-color:#c9332a;box-shadow:none}
   #mute.off{color:#c9332a;border-color:#7a1a12}
+  #mute{top:calc(14px + env(safe-area-inset-top));right:calc(16px + env(safe-area-inset-right))}
+  #touch{position:fixed;inset:0;z-index:4;display:none;touch-action:none}
+  body.touch.playing #touch{display:block}
+  #joyBase{position:absolute;width:130px;height:130px;margin:-65px 0 0 -65px;border-radius:50%;border:1.5px solid rgba(220,205,185,.28);background:radial-gradient(circle,rgba(0,0,0,.05),rgba(0,0,0,.35));display:none;pointer-events:none}
+  #joyKnob{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(220,205,185,.28);border:1px solid rgba(255,240,220,.45);box-shadow:0 0 18px rgba(0,0,0,.6)}
+  #joyHint{position:absolute;left:calc(70px + env(safe-area-inset-left));bottom:calc(70px + env(safe-area-inset-bottom));width:110px;height:110px;margin:-55px 0 0 -55px;border-radius:50%;border:1.5px dashed rgba(220,205,185,.18);pointer-events:none;transition:opacity .4s}
+  #runBtn{position:absolute;right:calc(28px + env(safe-area-inset-right));bottom:calc(36px + env(safe-area-inset-bottom));width:92px;height:92px;margin:0;padding:0;border-radius:50%;border:1.5px solid rgba(200,60,45,.55);background:rgba(60,10,8,.35);color:#e3d6c1;font-size:15px;letter-spacing:.08em;box-shadow:none}
+  #runBtn.on{background:rgba(150,25,18,.6);border-color:#e0493a}
+  #pauseBtn{position:absolute;left:calc(14px + env(safe-area-inset-left));top:calc(14px + env(safe-area-inset-top));margin:0;padding:8px 13px;font-size:13px;letter-spacing:.05em;background:rgba(0,0,0,.45);border:1px solid #4a3e33;box-shadow:none}
+  .mob{display:none}
+  body.touch .pc{display:none}
+  body.touch .mob{display:flex}
+  body.touch #stamWrap{bottom:calc(150px + env(safe-area-inset-bottom))}
+  @media (max-height:500px){ h1{font-size:44px} .sub{font-size:13px;line-height:1.6;margin-top:8px} .keys{margin-top:14px} button{margin-top:18px;padding:10px 34px 10px 40px;font-size:15px} .eyes{margin-bottom:12px} .small{margin-top:12px} #timer{font-size:22px;top:12px} }
   .small{font-size:12px;color:#6e6255;margin-top:28px;letter-spacing:.1em}
 </style>
 </head>
@@ -58,12 +73,14 @@
   <div class="en">THE LABYRINTH OF CRETE</div>
   <h1>미궁</h1>
   <div class="sub">달도 숨을 죽인 밤, 다이달로스의 미궁 한가운데서 눈을 떴다.<br>붉은 눈의 <b>미노타우로스</b>가 너의 냄새를 쫓는다.<br>새벽까지 <b>3분</b>. 살아남아라.</div>
-  <div class="keys"><span><b>W A S D</b>이동</span><span><b>SHIFT</b>달리기</span><span><b>MOUSE</b>시점</span><span><b>ESC</b>일시정지</span><span><b>M</b>소리 끄기</span></div>
+  <div class="keys mob"><span><b>왼쪽 화면</b>조이스틱 이동</span><span><b>오른쪽 화면</b>드래그로 시점</span><span><b>달리기</b>버튼 꾹</span></div>
+  <div class="keys pc"><span><b>W A S D</b>이동</span><span><b>SHIFT</b>달리기</span><span><b>MOUSE</b>시점</span><span><b>ESC</b>일시정지</span><span><b>M</b>소리 끄기</span></div>
   <button id="startBtn">입장하기</button>
   <div class="small">헤드폰 착용 권장 · 소리로 놈의 위치를 알 수 있다 · 벽으로 유인해 돌진을 피해라</div>
 </div>
+<div id="touch"><div id="joyHint"></div><div id="joyBase"><div id="joyKnob"></div></div><button id="runBtn">달리기</button><button id="pauseBtn">❚❚</button></div>
 <div id="hud"><div id="timer">3:00</div><div id="stamWrap"><div id="stam"></div></div><div id="msg"></div></div>
-<div id="pause" class="scr"><h2>PAUSED</h2><div class="sub">클릭해서 계속</div></div>
+<div id="pause" class="scr"><h2>PAUSED</h2><div class="sub">클릭(터치)해서 계속</div></div>
 <div id="dead" class="scr"><h2>미궁의 제물이 되었다</h2><div class="sub" id="deadTime"></div><button id="retry1">다시 들어가기</button></div>
 <div id="win" class="scr"><h2>새벽이 밝았다</h2><div class="sub">너는 미궁에서 살아남았다.<br>미노타우로스는 빛을 피해 어둠 속으로 물러났다.</div><button id="retry2">다시 들어가기</button></div>
 <script>
@@ -186,7 +203,7 @@ function makeNoise(seed) {
 }
 
 // ===== WebGL2 Renderer =====
-const MAX_PL = 8;
+const MAX_PL = 8; let DPR_CAP = 1.5;
 const SHADERS = {
   mainVS: `#version 300 es
 precision highp float;
@@ -367,7 +384,7 @@ class Renderer {
     const gl = canvas.getContext('webgl2', { antialias: false, alpha: false, powerPreference: 'high-performance' });
     if (!gl) throw new Error('WebGL2 미지원');
     this.gl = gl; this.canvas = canvas;
-    this.cbf = !!gl.getExtension('EXT_color_buffer_float');
+    this.cbf = !!(gl.getExtension('EXT_color_buffer_float') || gl.getExtension('EXT_color_buffer_half_float'));
     gl.getExtension('OES_texture_float_linear');
     this.aniso = gl.getExtension('EXT_texture_filter_anisotropic');
     this.p = {};
@@ -462,7 +479,7 @@ class Renderer {
   }
   freeTarget(t) { if (!t) return; const gl = this.gl; gl.deleteFramebuffer(t.fb); if (t.tex) gl.deleteTexture(t.tex); if (t.rb) gl.deleteRenderbuffer(t.rb); if (t.drb) gl.deleteRenderbuffer(t.drb); }
   resize(scale) {
-    const c = this.canvas; const dpr = Math.min(window.devicePixelRatio || 1, 1.5) * scale;
+    const c = this.canvas; const dpr = Math.min(window.devicePixelRatio || 1, DPR_CAP) * scale;
     const w = Math.max(2, Math.floor(c.clientWidth * dpr)), h = Math.max(2, Math.floor(c.clientHeight * dpr));
     if (w === this.w && h === this.h) return;
     this.w = w; this.h = h; c.width = w; c.height = h;
@@ -1664,6 +1681,9 @@ const $ = id => document.getElementById(id);
 const GAME_TIME = 180;
 let R, T = {}, staticDraw = [], mino, minoNodes = [];
 const keys = {};
+const IS_TOUCH = (window.matchMedia && matchMedia('(pointer: coarse)').matches) || ('ontouchstart' in window && navigator.maxTouchPoints > 0);
+const TC = { mx: 0, my: 0, sprint: false, joyId: null, lookId: null, jx: 0, jy: 0, lx: 0, ly: 0 };
+if (IS_TOUCH) { document.body.classList.add('touch'); DPR_CAP = 1.25; }
 const P = { pos: [0, 0, 3.2], vel: [0, 0], yaw: 0, pitch: 0, stamina: 1, exhausted: false, regenDelay: 0, phase: 0, bobAmp: 0, fov: 72, roll: 0, turnRoll: 0, lastStepSign: 0, shake: 0, breath: 0, sprinting: false, speed: 0, dipV: 0, dip: 0 };
 const M = { pos: [0, 0, 0], yaw: 0, state: 'dormant', t: 0, target: null, field: null, fieldKey: '', speed: 0, phase: 0, roar: 0, roarT: 0, lastSeen: null, lastSeenVel: [0, 0], sinceSeen: 99, seeing: false, chargeCD: 4, chargeDir: [0, 0], stun: 0, percT: 0, noContact: 0, headYaw: 0, headPitch: 0, breathe: 0, attack: 0, steamT: 0, lastPlant: 0, alerted: false };
 const GS = { state: 'loading', time: GAME_TIME, elapsed: 0, fear: 0, flash: 0, fade: 1, fadeCol: [0, 0, 0], deathT: 0, winT: 0, msgT: 0, heartT: 0, creakT: 10, scale: 1, ftAvg: 16, locked: false, test: /[?&#]test/.test(location.href) };
@@ -1723,10 +1743,41 @@ function lockPointer() {
   try { const r = $('c').requestPointerLock(); if (r && r.catch) r.catch(() => { GS.freeLook = true; }); } catch (e) { GS.freeLook = true; }
   setTimeout(() => { if (!GS.locked) GS.freeLook = true; }, 400);
 }
-function startGame() { AU.init(); $('title').style.display = 'none'; $('dead').style.display = 'none'; $('win').style.display = 'none'; $('pause').style.display = 'none'; $('hud').style.display = 'block'; resetGame(); GS.state = 'play'; GS.fade = 1; lockPointer(); msg('3분 동안 살아남아라', 4); }
-function pauseGame() { GS.state = 'pause'; $('pause').style.display = 'flex'; }
-function resumeGame() { $('pause').style.display = 'none'; GS.state = 'play'; AU.init(); lockPointer(); }
+function startGame() { AU.init(); document.body.classList.add('playing'); $('title').style.display = 'none'; $('dead').style.display = 'none'; $('win').style.display = 'none'; $('pause').style.display = 'none'; $('hud').style.display = 'block'; resetGame(); GS.state = 'play'; GS.fade = 1; if (!IS_TOUCH) lockPointer(); else GS.freeLook = true; msg('3분 동안 살아남아라', 4); }
+function pauseGame() { GS.state = 'pause'; resetTouch(); $('pause').style.display = 'flex'; }
+function resumeGame() { $('pause').style.display = 'none'; GS.state = 'play'; AU.init(); if (!IS_TOUCH) lockPointer(); }
 $('startBtn').onclick = startGame; $('retry1').onclick = startGame; $('retry2').onclick = startGame; $('pause').onclick = resumeGame;
+// ---- touch controls
+function resetTouch() { TC.mx = TC.my = 0; TC.sprint = false; TC.joyId = TC.lookId = null; $('joyBase').style.display = 'none'; $('runBtn').classList.remove('on'); }
+{
+  const layer = $('touch'), base = $('joyBase'), knob = $('joyKnob'), run = $('runBtn'); const JR = 55;
+  layer.addEventListener('pointerdown', e => {
+    if (e.target === run || e.target === $('pauseBtn')) return;
+    e.preventDefault();
+    if (e.clientX < innerWidth * 0.45 && TC.joyId === null) {
+      TC.joyId = e.pointerId; TC.jx = e.clientX; TC.jy = e.clientY; base.style.left = e.clientX + 'px'; base.style.top = e.clientY + 'px'; base.style.display = 'block'; knob.style.transform = ''; $('joyHint').style.opacity = 0;
+    } else if (TC.lookId === null) { TC.lookId = e.pointerId; TC.lx = e.clientX; TC.ly = e.clientY; }
+    try { layer.setPointerCapture(e.pointerId); } catch (err) { }
+  });
+  layer.addEventListener('pointermove', e => {
+    if (e.pointerId === TC.joyId) {
+      let dx = e.clientX - TC.jx, dy = e.clientY - TC.jy; const d = Math.hypot(dx, dy);
+      if (d > JR) { dx *= JR / d; dy *= JR / d; }
+      knob.style.transform = `translate(${dx}px,${dy}px)`; TC.mx = dx / JR; TC.my = -dy / JR;
+    } else if (e.pointerId === TC.lookId && GS.state === 'play') {
+      const dx = e.clientX - TC.lx, dy = e.clientY - TC.ly; TC.lx = e.clientX; TC.ly = e.clientY;
+      const s = 0.0052; P.yaw -= dx * s; P.pitch = clamp(P.pitch - dy * s, -1.35, 1.35); P.turnRoll += dx * 0.0008;
+    }
+  });
+  const end = e => { if (e.pointerId === TC.joyId) { TC.joyId = null; TC.mx = TC.my = 0; base.style.display = 'none'; $('joyHint').style.opacity = 1; } if (e.pointerId === TC.lookId) TC.lookId = null; };
+  layer.addEventListener('pointerup', end); layer.addEventListener('pointercancel', end);
+  run.addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); TC.sprint = true; run.classList.add('on'); try { run.setPointerCapture(e.pointerId); } catch (err) { } });
+  const runEnd = e => { TC.sprint = false; run.classList.remove('on'); };
+  run.addEventListener('pointerup', runEnd); run.addEventListener('pointercancel', runEnd);
+  $('pauseBtn').addEventListener('pointerdown', e => { e.preventDefault(); e.stopPropagation(); if (GS.state === 'play') pauseGame(); });
+  document.addEventListener('gesturestart', e => e.preventDefault());
+  document.addEventListener('touchmove', e => { if (GS.state === 'play') e.preventDefault(); }, { passive: false });
+}
 $('c').addEventListener('click', () => { if (GS.state === 'play' && !GS.locked) lockPointer(); });
 
 // ---- particles
@@ -1734,7 +1785,7 @@ function emit(p, v, life, size, kind, col, grow = 0, rot = 0) { if (parts.length
 function updateParticles(dt, cam) {
   for (const t of world.torches) {
     const d = Math.hypot(t.p[0] - cam[0], t.p[2] - cam[2]); if (d > 34) continue;
-    const rate = t.big ? 60 : 26; t.acc = (t.acc || 0) + rate * dt;
+    const rate = (t.big ? 60 : 26) * (IS_TOUCH ? 0.6 : 1); t.acc = (t.acc || 0) + rate * dt;
     while (t.acc > 1) {
       t.acc--; const sc = t.big ? 1.9 : 1;
       const o = [(rand() - 0.5) * 0.1 * sc, 0, (rand() - 0.5) * 0.1 * sc];
@@ -1772,13 +1823,16 @@ function packParticles(extra) {
 function updatePlayer(dt) {
   const fw = [-Math.sin(P.yaw), -Math.cos(P.yaw)], rt = [Math.cos(P.yaw), -Math.sin(P.yaw)];
   let ix = 0, iz = 0; if (keys.KeyW || keys.ArrowUp) iz += 1; if (keys.KeyS || keys.ArrowDown) iz -= 1; if (keys.KeyD || keys.ArrowRight) ix += 1; if (keys.KeyA || keys.ArrowLeft) ix -= 1;
-  const il = Math.hypot(ix, iz); if (il > 0) { ix /= il; iz /= il; }
-  const wantSprint = (keys.ShiftLeft || keys.ShiftRight) && il > 0 && iz > -0.2;
+  let il = Math.hypot(ix, iz); if (il > 0) { ix /= il; iz /= il; il = 1; }
+  let analog = 1;
+  const tm = Math.hypot(TC.mx, TC.my);
+  if (il === 0 && tm > 0.12) { ix = TC.mx / tm; iz = TC.my / tm; il = 1; analog = clamp((tm - 0.12) / 0.75, 0.3, 1); }
+  const wantSprint = (keys.ShiftLeft || keys.ShiftRight || TC.sprint) && il > 0 && iz > -0.2;
   P.sprinting = wantSprint && !P.exhausted && P.stamina > 0;
   if (P.sprinting) { P.stamina -= dt / 5.5; P.regenDelay = 1.1; if (P.stamina <= 0) { P.stamina = 0; P.exhausted = true; P.sprinting = false; } }
   else { P.regenDelay -= dt; if (P.regenDelay <= 0) P.stamina = Math.min(1, P.stamina + dt / (P.exhausted ? 7.5 : 6)); if (P.exhausted && P.stamina > 0.35) P.exhausted = false; }
   const back = iz < -0.1 ? 0.75 : 1;
-  const maxS = (P.sprinting ? 6.3 : P.exhausted ? 2.4 : 3.1) * back;
+  const maxS = (P.sprinting ? 6.3 : (P.exhausted ? 2.4 : 3.1) * analog) * back;
   const tv = [(fw[0] * iz + rt[0] * ix) * maxS, (fw[1] * iz + rt[1] * ix) * maxS];
   const acc = il > 0 ? (P.sprinting ? 6 : 9) : 11;
   P.vel[0] = damp(P.vel[0], tv[0], acc, dt); P.vel[1] = damp(P.vel[1], tv[1], acc, dt);
@@ -2017,7 +2071,7 @@ function updateDying(dt) {
   GS.flash = Math.max(0, 0.8 - t * 1.4) + (t > 0.95 && t < 1.05 ? 1 : 0); GS.fear = 1;
   if (t > 1.05) { GS.fade = 1; GS.fadeCol = [0, 0, 0]; }
   if (t > 1.5 && GS.state === 'dying') {
-    GS.state = 'dead'; $('hud').style.display = 'none'; $('dead').style.display = 'flex';
+    GS.state = 'dead'; document.body.classList.remove('playing'); resetTouch(); $('hud').style.display = 'none'; $('dead').style.display = 'flex';
     const s = Math.floor(GS.elapsed); $('deadTime').textContent = `버틴 시간 ${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')} / 3:00`;
   }
 }
@@ -2064,7 +2118,7 @@ function loop(now) {
     updatePlayer(dt); updateMino(dt);
     if (GS.time <= 0) { GS.time = 0; win(); }
   } else if (GS.state === 'dying') updateDying(dt);
-  else if (GS.state === 'winning') { GS.winT += dt; GS.fadeCol = [0.75, 0.72, 0.68]; GS.fade = smooth(0.0, 3.5, GS.winT); if (GS.winT > 3.6) { GS.state = 'won'; $('hud').style.display = 'none'; $('win').style.display = 'flex'; } }
+  else if (GS.state === 'winning') { GS.winT += dt; GS.fadeCol = [0.75, 0.72, 0.68]; GS.fade = smooth(0.0, 3.5, GS.winT); if (GS.winT > 3.6) { GS.state = 'won'; document.body.classList.remove('playing'); resetTouch(); $('hud').style.display = 'none'; $('win').style.display = 'flex'; } }
   else if (GS.state === 'title') { P.yaw = Math.sin(now / 9000) * 0.6 + 0.4; P.pitch = 0.08; M.pos = [0, 0, 9]; M.yaw = PI; poseMinotaur(mino, { phase: 0, speed: 0, lean: 0, roar: 0, headYaw: Math.sin(now / 3000) * 0.4, headPitch: 0.1, breathe: now / 600, t: now / 1000, attack: 0 }); mino.root.pos = [0, 0.28, 0]; mino.root.rot = [0, 0, 0]; mino.root.scl = [0, 0, 0]; mino.root.update(null); }
   if (GS.state !== 'play' && GS.state !== 'title') GS.fear = damp(GS.fear, GS.state === 'dying' ? 1 : 0, 2, dt);
   if (GS.state === 'play' || GS.state === 'title') GS.fade = damp(GS.fade, 0, 1.5, dt);
